@@ -18,20 +18,35 @@ namespace BigBallGame
         }
 
         Graphics g;
-
-        Tuple<int, int, int, int> bila;
+        List<Tuple<int, int, int, int, int>> bile;
+        //Tuple<int, int, int, int, int> bila;
         Random rndX;
+        Random rndBila;
+        Random rndColor;
+        Pen pen;
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
             g = e.Graphics;
+        }
+
+        private void Form1_Load(object sender, EventArgs e)
+        {
             rndX = new Random();
+            rndBila = new Random();
+            rndColor = new Random();
+            bile = new List<Tuple<int, int, int, int, int>>();
         }
 
         private void buttonDrawCircle_Click(object sender, EventArgs e)
         {
             Graphics g = panel1.CreateGraphics();
-            bila = new Tuple<int, int, int, int>(250, 300, 15, 15);
+            int n = 25;
+            for (int i = 0; i < n; i++)
+            {
+                Tuple<int, int, int, int, int>  bila = new Tuple<int, int, int, int, int>(rndBila.Next(50, panel1.Width - 50), rndBila.Next(50, panel1.Height - 50), 20, 20, rndColor.Next(0, 3));
+                bile.Add(bila);
+            }
             Timer myTimer = new Timer();
             myTimer.Interval = 20;
             myTimer.Tick += new System.EventHandler(Draw);
@@ -39,19 +54,39 @@ namespace BigBallGame
             //myTimer.AutoReset = true;
             myTimer.Enabled = true;
 
-
         }
 
         private void Draw(object sender, EventArgs e)
         {
             Graphics g = panel1.CreateGraphics();
             panel1.Refresh();
-            Pen pen = new Pen(Color.Black, 2);
-            g.DrawEllipse(pen, bila.Item1, bila.Item2, bila.Item3, bila.Item4);
-
+            // = new Pen(Color.Black, 2);
+            for(int i = 0; i < bile.Count; i++)
+            {
+                switch (bile[i].Item5)
+                {
+                    case 0:
+                        pen = new Pen(Color.Black, 2);
+                        break;
+                    case 1:
+                        pen = new Pen(Color.Red, 2);
+                        break;
+                    case 2:
+                        pen = new Pen(Color.BlueViolet, 2);
+                        break;
+                    case 3:
+                        pen = new Pen(Color.OrangeRed, 2);
+                        break;
+                    default:
+                        break;
+                }
+                g.DrawEllipse(pen, bile[i].Item1, bile[i].Item2, bile[i].Item3, bile[i].Item4);
+                bile[i] = new Tuple<int, int, int, int, int>(rndX.Next(bile[i].Item1 - 2, bile[i].Item1 + 2), rndX.Next(bile[i].Item2 - 2, bile[i].Item2 + 2), 15, 15, bile[i].Item5);
+            }
             
-            bila = new Tuple<int, int, int, int>(rndX.Next(bila.Item1 - 2, bila.Item1 + 2), rndX.Next(bila.Item2 - 2, bila.Item2 + 2), 15, 15);
 
         }
+
+       
     }
 }
