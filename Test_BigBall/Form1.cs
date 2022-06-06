@@ -7,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Test_BigBall;
 
 namespace BigBallGame
 {
@@ -18,12 +19,9 @@ namespace BigBallGame
         }
 
         Graphics g;
-        List<Tuple<int, int, int, int, int>> bile;
-        //Tuple<int, int, int, int, int> bila;
-        Random rndX;
-        Random rndBila;
-        Random rndColor;
-        Pen pen;
+        List<Ball> balls;
+        Random rnd;
+        Timer myTimer;
 
         private void panel1_Paint(object sender, PaintEventArgs e)
         {
@@ -32,61 +30,83 @@ namespace BigBallGame
 
         private void Form1_Load(object sender, EventArgs e)
         {
-            rndX = new Random();
-            rndBila = new Random();
-            rndColor = new Random();
-            bile = new List<Tuple<int, int, int, int, int>>();
+            rnd = new Random();
+            balls = new List<Ball>();
         }
 
         private void buttonDrawCircle_Click(object sender, EventArgs e)
         {
-            Graphics g = panel1.CreateGraphics();
-            int n = 25;
+            int n = 10;
             for (int i = 0; i < n; i++)
             {
-                Tuple<int, int, int, int, int>  bila = new Tuple<int, int, int, int, int>(rndBila.Next(50, panel1.Width - 50), rndBila.Next(50, panel1.Height - 50), 20, 20, rndColor.Next(0, 3));
-                bile.Add(bila);
+                balls.Add(new Ball(rnd.Next(25, panel1.Width - 50), rnd.Next(25, panel1.Height - 50), rnd.Next(1,4), rnd.Next(-2, 3), rnd.Next(-2, 3), rnd.Next(5, 40), rnd.Next(0, 256), rnd.Next(0, 256), rnd.Next(0, 256)));
             }
-            Timer myTimer = new Timer();
-            myTimer.Interval = 20;
-            myTimer.Tick += new System.EventHandler(Draw);
-            //myTimer.Elapsed += OnTimedEvent;
-            //myTimer.AutoReset = true;
-            myTimer.Enabled = true;
-
+            Graphics g = panel1.CreateGraphics();
+            panel1.Refresh();
+            for (int i = 0; i < balls.Count; i++)
+            {
+                balls[i].Draw(g);
+                //verifici coliziunea
+                balls[i].Move();
+            }
         }
 
         private void Draw(object sender, EventArgs e)
         {
             Graphics g = panel1.CreateGraphics();
             panel1.Refresh();
-            // = new Pen(Color.Black, 2);
-            for(int i = 0; i < bile.Count; i++)
+            int[] shouldDestroy = new int[balls.Count];
+            for(int i = 0; i < balls.Count; i++)
             {
-                switch (bile[i].Item5)
+                //verifica coliziunea intre bile
+                for (int j = i + 1; j < balls.Count; j++)
                 {
-                    case 0:
-                        pen = new Pen(Color.Black, 2);
-                        break;
-                    case 1:
-                        pen = new Pen(Color.Red, 2);
-                        break;
-                    case 2:
-                        pen = new Pen(Color.BlueViolet, 2);
-                        break;
-                    case 3:
-                        pen = new Pen(Color.OrangeRed, 2);
-                        break;
-                    default:
-                        break;
+                    if (IsCollision(balls[i], balls[j]))
+                    {
+                        shouldDestroy[i] += balls[i].Colide(balls[j]);
+                        shouldDestroy[j] += balls[j].Colide(balls[i]);
+                    }
                 }
-                g.DrawEllipse(pen, bile[i].Item1, bile[i].Item2, bile[i].Item3, bile[i].Item4);
-                bile[i] = new Tuple<int, int, int, int, int>(rndX.Next(bile[i].Item1 - 2, bile[i].Item1 + 2), rndX.Next(bile[i].Item2 - 2, bile[i].Item2 + 2), 15, 15, bile[i].Item5);
-            }
-            
+                //verifica coliziunea cu peretele
+                balls[i].WallColision(panel1.Width - 10, panel1.Height - 10);
 
+                balls[i].Move();
+                balls[i].Draw(g);
+            }
+            for(int i = 0; i< shouldDestroy.Length; i++)
+            {
+                if(shouldDestroy[i] > 0)
+                {
+                    balls.RemoveAt(i);
+                }
+            }
         }
 
-       
+        private void buttonStop_Click(object sender, EventArgs e)
+        {
+            myTimer.Enabled = false;
+        }
+
+        private void buttonStart_Click(object sender, EventArgs e)
+        {
+            myTimer = new Timer();
+            myTimer.Interval =  2;
+            myTimer.Tick += new System.EventHandler(Draw);
+            myTimer.Enabled = true;
+        }
+
+        private bool IsCollision(Ball a, Ball b)
+        {
+            if (GetDistance(a.Centre, b.Centre) <= (a.Radius + b.Radius))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private double GetDistance(Point a, Point b)
+        {
+            return Math.Sqrt(Math.Pow((a.X - b.X), 2) + Math.Pow((a.Y - b.Y), 2));
+        }
     }
 }
