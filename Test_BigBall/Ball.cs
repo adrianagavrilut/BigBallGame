@@ -10,6 +10,7 @@ namespace Test_BigBall
 {
     class Ball
     {
+        #region Data
         private int X;
         private int Y;
         private int radius;
@@ -20,47 +21,35 @@ namespace Test_BigBall
         private int r;
         private int g;
         private int b;
+        #endregion
 
-        public int Radius
+        #region Properties
+        /*public int Radius
         {
             get 
             {
                 return radius;
             }
-        }
-
-        public Point Centre
+        } */
+        public int Radius => radius;
+        /*public Point Centre
         {
             get
             {
                 return new Point(this.X + radius, this.Y + radius);
             }
         }
+        */
+        public Point Centre => new Point(this.X + radius, this.Y + radius);
 
-        public bool IsMonster
-        {
-            get
-            {
-                return this.type == 2;
-            }
-        }
+        public bool IsMonster => this.type == 2;
 
-        public bool IsRegular
-        {
-            get
-            {
-                return this.type == 1;
-            }
-        }
+        public bool IsRegular => this.type == 1;
 
-        public bool IsRepellent
-        {
-            get
-            {
-                return this.type == 3;
-            }
-        }
+        public bool IsRepellent => this.type == 3;
+        #endregion
 
+        #region Constructor
         public Ball(int x, int y, int type, int dx, int dy, int radius, int r, int g, int b)
         {
             this.X = x;
@@ -68,8 +57,8 @@ namespace Test_BigBall
             this.radius = radius;
             this.dx = dx;
             this.dy = dy;
-            
             this.type = type;
+
             if (IsMonster)
             {
                 this.color = Color.FromArgb(r, g, b);
@@ -84,24 +73,10 @@ namespace Test_BigBall
             {
                 this.color = Color.FromArgb(r, g, b);
             }
-            //switch (tip)
-            //{
-            //    case 1:
-            //        this.culoare = Color.Green;
-            //        break;
-            //    case 2:
-            //        this.culoare = Color.Black;
-            //        this.dx = 0;
-            //        this.dy = 0;
-            //        break;
-            //    case 3:
-            //        this.culoare = Color.Red;
-            //        break;
-            //    default:
-            //        break;
-            //}
         }
+        #endregion
 
+        #region Methods
         public void Draw(Graphics g)
         {
             SolidBrush solidBrush = new SolidBrush(this.color);
@@ -123,7 +98,7 @@ namespace Test_BigBall
             this.Y += this.dy;
         }
 
-        public void WallColision(int w, int h)
+        public void WallCollision(int w, int h)
         {
             if (this.X + 2 * this.radius >= w )//perete dreapta
             {
@@ -163,7 +138,7 @@ namespace Test_BigBall
                     //culoarea bilei mari se schimbă prin combinarea culorilor celor două bile proporțional cu dimensiunea lor
                     this.radius += target.radius;
                     int proportion = this.radius / target.radius;
-                    this.r = proportion * this.r +  target.r;
+                    this.r = proportion * this.r + target.r;
                     this.g = proportion * this.g + target.g;
                     this.b = proportion * this.b + target.b;
                 }
@@ -216,5 +191,6 @@ namespace Test_BigBall
             }
             return 0;
         }
+        #endregion
     }
 }
